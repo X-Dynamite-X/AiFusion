@@ -36,6 +36,9 @@ export const useAuthStore = defineStore('auth', {
       await this.getToken();
       try {
         await axios.post(endpoint, data);
+        if(endpoint === "/register"){
+            await this.handleLogout();
+        }
         this.router.push(redirectPath);
       } catch (error) {
         if (error.response && error.response.status === 422) {
