@@ -3,7 +3,7 @@
     import { useAuthStore } from '../../stores/auth';
     const  authStore = useAuthStore();
 
-    const forgotPsasword =authStore.handelForgotPsasword
+    const forgotPsasword =authStore.handleForgotPassword
     const email = ref('');
 </script>
 

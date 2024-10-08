@@ -34,7 +34,7 @@
             <div class="flex items-center justify-between">
               <label for="password" class="block text-sm font-medium leading-6 text-gray-900">Password</label>
               <div class="text-sm">
-                <router-link :to="{name:'ForgotPsasword'}" class="font-semibold text-indigo-600 hover:text-indigo-500">Forgot password?</router-link>
+                <router-link :to="{name:'ForgotPassword'}" class="font-semibold text-indigo-600 hover:text-indigo-500">Forgot password?</router-link>
               </div>
             </div>
             <div class="mt-2">
