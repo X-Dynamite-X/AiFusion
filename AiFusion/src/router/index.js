@@ -8,10 +8,12 @@ import Register from "../views/Auth/Register.vue";
 import ForgotPassword from "../views/Auth/ForgotPsasword.vue";
 import ResetPassword from "../views/Auth/ResetPassword.vue";
 import NotFound from "../views/Errors/NotFound.vue";
+import ProviderCallbackView from "../views/Auth/ProviderCallbackView.vue";
 
 const routes = [
   { path: "/", component: Home, name: "home" },
   { path: "/login", component: Login, name: "login" },
+  { path: "/:provider/callback", component: ProviderCallbackView, name: "ProviderCallback" },
   { path: "/register", component: Register, name: "register" },
   { path: "/forgot-password", component: ForgotPassword, name: "ForgotPassword" },
   { path: "/password-reset/:token", component: ResetPassword, name: "ResetPassword" },
@@ -34,7 +36,7 @@ router.beforeEach(async (to, from, next) => {
     }
   }
 
-  const publicPages = ['login', 'register', 'ForgotPassword', 'ResetPassword'];
+  const publicPages = ['login', 'register', 'ForgotPassword', 'ResetPassword',"ProviderCallback"];
   const authRequired = !publicPages.includes(to.name);
 
   if (authStore.user && publicPages.includes(to.name)) {

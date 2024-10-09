@@ -83,6 +83,29 @@ export const useAuthStore = defineStore('auth', {
           this.authErrors = error.response.data.errors;
         }
       }
-    }
+    },
+    async handleGitHubLogin(provider) {
+        try {
+            const { data } = await axios.get(`http://192.168.1.204:8000/api/${provider}/login`);
+            console.log(data);
+            if (data) {
+                window.location.href = data; // تحويل المستخدم إلى رابط GitHub للتسجيل
+            }
+        } catch (error) {
+            console.error(`Error during ${provider} login:`, error);
+        }
+
+    },
+    async handleGitHubCallback(provider,code) {
+        try {
+          // إرسال الـ code إلى الخادم للحصول على بيانات المستخدم
+          const { data } = await axios.get(`http://192.168.1.204:8000/api/${provider}/callback?code=${code}`);
+          console.log(data);
+          this.authUser = data.user; // افتراضاً أنك تحصل على بيانات المستخدم هنا
+        } catch (error) {
+          console.error("Error during GitHub callback:", error);
+        }
+      },
+
   }
 });

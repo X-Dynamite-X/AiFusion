@@ -1,7 +1,7 @@
 <script setup>
+    import { onMounted ,ref} from 'vue';
     import { useAuthStore } from '../stores/auth';
     const authStore = useAuthStore();
-
 </script>
 
 <template>
@@ -10,7 +10,6 @@
     <template v-if="authStore.user">
         <p class="text-3xl text-blue-700 text-center ">
             Welcome, {{ authStore.user.name }}!
-
         </p>
     </template>
     <template v-else>

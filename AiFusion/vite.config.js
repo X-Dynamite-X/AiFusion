@@ -20,5 +20,11 @@ export default defineConfig({
   server:{
     host:"0.0.0.0",
     port:"3000"
-  }
+  },
+  define: {
+    'process.env': {
+      VITE_BACKEND_URL: 'http://192.168.1.204:8000',
+    },
+  },
 })
+
