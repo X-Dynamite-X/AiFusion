@@ -27,3 +27,4 @@ onMounted(async () => {
 <template>
   <h1 class="text-4xl text-red-700"> Login with {{ route.params.provider }} page</h1>
 </template>
+ 
