@@ -7,9 +7,9 @@
     const authStore = useAuthStore();
     const logout = authStore.handleLogout
 
-//     const userAvatar = computed(() => {
-//   return authStore.user?.name ? authStore.user.avatar : "";
-// });
+    const userAvatar = computed(() => {
+  return authStore.user?.name ? authStore.user.avatar : "";
+});
     const initials = computed(() => {
     return authStore.user?.name
   ? authStore.user.name.charAt(0).toUpperCase()
@@ -68,7 +68,7 @@
                   <span class="absolute -inset-1.5" />
                   <span class="sr-only">Open user menu</span>
                   <!-- <span class="h-8 w-8 bg-gray-200 rounded-full flex items-center justify-center font-bold" v-if="authStore.user.avatar" ><img src="authStore.user.avatar " alt=""></span> -->
-                  <img class="inline-block h-8 w-8 rounded-full ring-1  ring-white" :src="authStore.user.avatar "  v-if="authStore.user.avatar" alt="" />
+                  <img class="inline-block h-8 w-8 rounded-full ring-1  ring-white" :src="userAvatar "  v-if="userAvatar" alt="" />
                   <span class="h-8 w-8 bg-gray-200 rounded-full flex items-center ring-2 ring-white justify-center font-bold" v-else >{{ initials }}</span>
                   <!-- <img src="{{userAvatar}}" alt=""> -->
 
