@@ -89,7 +89,7 @@ export const useAuthStore = defineStore('auth', {
             const { data } = await axios.get(`http://192.168.1.204:8000/api/${provider}/login`);
             console.log(data);
             if (data) {
-                window.location.href = data; // تحويل المستخدم إلى رابط GitHub للتسجيل
+                window.location.href = data;
             }
         } catch (error) {
             console.error(`Error during ${provider} login:`, error);
@@ -98,10 +98,9 @@ export const useAuthStore = defineStore('auth', {
     },
     async handleGitHubCallback(provider,code) {
         try {
-          // إرسال الـ code إلى الخادم للحصول على بيانات المستخدم
           const { data } = await axios.get(`http://192.168.1.204:8000/api/${provider}/callback?code=${code}`);
           console.log(data);
-          this.authUser = data.user; // افتراضاً أنك تحصل على بيانات المستخدم هنا
+          this.authUser = data.user;
         } catch (error) {
           console.error("Error during GitHub callback:", error);
         }

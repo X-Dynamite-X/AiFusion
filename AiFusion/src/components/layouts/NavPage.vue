@@ -6,12 +6,16 @@
 
     const authStore = useAuthStore();
     const logout = authStore.handleLogout
-    const initials = computed(() => {
 
-return authStore.user?.name
+//     const userAvatar = computed(() => {
+//   return authStore.user?.name ? authStore.user.avatar : "";
+// });
+    const initials = computed(() => {
+    return authStore.user?.name
   ? authStore.user.name.charAt(0).toUpperCase()
   : "";
 });
+    // const avatar =authStore.user.avatar;
 </script>
 
 <template>
@@ -63,7 +67,12 @@ return authStore.user?.name
                 <MenuButton class="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                   <span class="absolute -inset-1.5" />
                   <span class="sr-only">Open user menu</span>
-                  <span class="h-8 w-8 bg-gray-200 rounded-full flex items-center justify-center font-bold" >{{ initials }}</span>
+                  <!-- <span class="h-8 w-8 bg-gray-200 rounded-full flex items-center justify-center font-bold" v-if="authStore.user.avatar" ><img src="authStore.user.avatar " alt=""></span> -->
+                  <img class="inline-block h-8 w-8 rounded-full ring-1  ring-white" :src="authStore.user.avatar "  v-if="authStore.user.avatar" alt="" />
+                  <span class="h-8 w-8 bg-gray-200 rounded-full flex items-center ring-2 ring-white justify-center font-bold" v-else >{{ initials }}</span>
+                  <!-- <img src="{{userAvatar}}" alt=""> -->
+
+                    <!-- <p class="text-white"> {{ userAvatar }}</p> -->
                 </MenuButton>
               </div>
               <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
