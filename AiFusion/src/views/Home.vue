@@ -1,48 +1,43 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import { useAuthStore } from "../stores/auth";
 
-// قائمة غرف الدردشة
-const chatRooms = ref([]);
+const authStore = useAuthStore();
+const userAvatar = computed(() => {
+  return authStore.user?.avatar ? authStore.user.avatar : "";
+});
+const initials = computed(() => {
+  return authStore.user?.name
+    ? authStore.user.name.charAt(0).toUpperCase()
+    : "";
+});
+const AI_initials =  "ai".toUpperCase()
 
-// الرسائل الحالية
-const messages = ref([]);
+const chatRooms = ref([
+  { name: 'Room 1' },
+  { name: 'Room 2' },
+  { name: 'Room 3' },
+]);
 
-// الرسالة الجديدة المدخلة
+const messages = ref([
+  { sender: 'user', text: 'Hello, how can I help you?' },
+  { sender: 'bot', text: 'I need some information about your services.' },
+]);
+
 const newMessage = ref('');
 
-// دالة لإرسال الرسالة
 const sendMessage = () => {
   if (newMessage.value.trim() !== '') {
-    // إضافة الرسالة الجديدة من المستخدم
-    messages.value.push({ text: newMessage.value, sender: 'user' });
-
-    // محاكاة رد من البوت
-    setTimeout(() => {
-      messages.value.push({ text: 'This is a simulated response.', sender: 'bot' });
-    }, 1000);
-
-    // إضافة غرفة دردشة جديدة عند إرسال رسالة
-    addChatRoom();
-
-    // مسح حقل الإدخال بعد الإرسال
+    messages.value.push({ sender: 'user', text: newMessage.value });
     newMessage.value = '';
   }
-};
-
-// دالة لإضافة غرفة دردشة جديدة
-const addChatRoom = () => {
-  const newRoom = {
-    name: `Chat Room #${chatRooms.value.length + 1} - ${new Date().toLocaleString()}`
-  };
-  // إضافة الغرفة الجديدة إلى بداية قائمة غرف الدردشة
-  chatRooms.value.unshift(newRoom);
 };
 </script>
 
 <template>
-  <div class="flex h-[92.9vh] h-max-[92.9vh]">
+  <div class="flex h-[94vh]">
     <!-- Sidebar -->
-    <aside class="w-64 bg-gray-900 text-white p-4">
+    <aside class="w-64 bg-gray-900 text-white p-4 hidden lg:block">
       <h2 class="text-xl font-bold mb-4">Previous Chats</h2>
       <!-- Dynamic Chat Rooms List -->
       <ul class="space-y-2">
@@ -53,25 +48,32 @@ const addChatRoom = () => {
     </aside>
 
     <!-- Main Content -->
-    <div class="flex-grow flex flex-col ">
-      <!-- Header -->
-
-
-      <!-- Messages Section -->
+    <div class="flex-grow flex flex-col">
       <div class="flex-grow p-4 bg-gray-100 overflow-y-auto">
         <!-- Loop through messages -->
-        <div v-for="(message, index) in messages" :key="index" class="flex items-start mb-4">
-          <div v-if="message.sender === 'user'" class="ml-auto bg-blue-500 text-white p-3 rounded-lg max-w-xs">
-            {{ message.text }}
+        <div v-for="(message, index) in messages" :key="index" class="flex items-start mb-4" :class="{'justify-end': message.sender === 'user'}">
+          <!-- Avatar and Message -->
+          <div v-if="message.sender === 'user'" class="flex items-center space-x-2 ml-auto">
+            <div class="text-right">
+              <div class="bg-blue-500 text-white p-3 rounded-lg max-w-xs">
+                {{ message.text }}
+              </div>
+            </div>
+            <img class="h-8 w-8 rounded-full ring-1 ring-white" :src="userAvatar" v-if="userAvatar" alt="User Avatar" />
+            <span class="h-8 w-8 bg-blue-200 rounded-full flex items-center justify-center font-bold" v-else>{{ initials }}</span>
           </div>
-          <div v-else class="bg-gray-200 p-3 rounded-lg max-w-xs">
-            {{ message.text }}
+          <div v-else class="flex items-center space-x-2">
+            <span class="h-8 w-8 bg-gray-200 rounded-full flex items-center justify-center font-bold" >{{ AI_initials }}</span>
+            <div class="bg-gray-200 text-black p-3 rounded-lg max-w-xs">
+              {{ message.text }}
+            </div>
           </div>
         </div>
+        
       </div>
 
       <!-- Input Section -->
-      <div class="p-4 bg-white border-t">
+      <div class="p-4 bg-gray-300 border-t">
         <form @submit.prevent="sendMessage" class="flex">
           <input
             v-model="newMessage"

@@ -8,7 +8,7 @@
 </script>
 
 <template>
-    <main class="min-h-screen max-h-screen">
+    <main class="min-h-[100vh] max-h-[100vh]">
 
         <nav-page></nav-page>
         <router-view></router-view>
