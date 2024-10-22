@@ -8,18 +8,21 @@ use Illuminate\Database\Eloquent\Model;
 class AIReply extends Model
 {
     use HasFactory;
+    protected $fillable = [
+    "message_id",
+    "sender_id",
+    "reply_text",
+    ];
 
-    protected $fillable = ['message_id', 'sender_id', 'reply_text'];
+    public function user()
+{
+    return $this->belongsTo(User::class);
+}
 
-    // علاقة الرد بالرسالة الأصلية
-    public function aiMessage()
-    {
-        return $this->belongsTo(AIMessage::class);
-    }
+public function message()
+{
+    return $this->belongsTo(AIMessage::class);
+}
 
-    // علاقة الرد بالمستخدم المرسل
-    public function aiSender()
-    {
-        return $this->belongsTo(User::class, 'sender_id');
-    }
+
 }

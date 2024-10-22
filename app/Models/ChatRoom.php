@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class ChatRoom extends Model
 {
     use HasFactory;
-    protected $fillable = ['room_name'];
+    protected $fillable = ['name'];
 
     // علاقة غرفة الدردشة بالرسائل
     public function aiMessages()

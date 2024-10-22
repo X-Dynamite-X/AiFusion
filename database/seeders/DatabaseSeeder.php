@@ -13,11 +13,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        User::create([
+            'name' => 'dynamite',
+            'email' => 'dynamite@gmail.com',
+            'password' => bcrypt(value: '123'),
         ]);
+        User::factory(count: 10)->create();
+
+            $this->call([
+                ChatRoomSeeder::class,
+                AIMesssageSeeder::class,
+            ]);
     }
 }

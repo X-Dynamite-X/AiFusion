@@ -14,7 +14,9 @@ export const useAuthStore = defineStore('auth', {
   },
   actions: {
     async getToken() {
-      await axios.get('/sanctum/csrf-cookie');
+      const { data }= await axios.get('/sanctum/csrf-cookie');
+      console.log(data);
+
     },
     async getUser() {
       await this.getToken();
@@ -105,6 +107,13 @@ export const useAuthStore = defineStore('auth', {
           console.error("Error during GitHub callback:", error);
         }
       },
-
+      async test() {
+        try {
+          const { data } = await axios.get(`http://192.168.1.204:8000/api/test`);
+          console.log(data);
+        } catch (error) {
+          console.error("Error during GitHub callback:", error);
+        }
+      },
   }
 });

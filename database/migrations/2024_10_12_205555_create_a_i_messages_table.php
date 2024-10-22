@@ -13,9 +13,11 @@ return new class extends Migration
     {
         Schema::create('a_i_messages', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('chat_room_id')->constrained('chat_romes')->onDelete('cascade');
+            $table->foreignId('chat_room_id')->constrained('chat_rooms')->onDelete('cascade');
             $table->foreignId('sender_id')->constrained('users')->constrained()->onDelete('cascade');
             $table->text('message_text');
+            // $table->text('reply_text');
+
             $table->timestamps();
         });
     }
