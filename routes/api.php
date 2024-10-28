@@ -16,10 +16,8 @@ Route::prefix("{provider}")->name("provider.")->controller(AuthController::class
     Route::get('/callback', 'handleProviderCallback')->name('callback');
 });
 //
-Route::post('/generate-text/{room}', action: [AIMessageController::class, 'generateText']);
+
 Route::get("getAllRooms",[AIMessageController::class,"getAllRooms"],);
+Route::post("createRooms",[AIMessageController::class,"createChatRoom"]);
 Route::get("getChatInRoom/{room}",[AIMessageController::class,"getTextChat"],);
-
-
-// test
-Route::get("getAllRooms_test",[AIMessageController::class,"getAllRooms_test"],);
+Route::post('/generate-text/{room}', action: [AIMessageController::class, 'generateText']);

@@ -8,8 +8,10 @@ use App\Models\AIReply;
 use App\Models\ChatRoom;
 use App\Models\AIMessage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Date;
 use GuzzleHttp\Exception\RequestException;
 
 class AIMessageController extends Controller
@@ -63,18 +65,17 @@ class AIMessageController extends Controller
 
         return response()->json($rooms);
     }
-    public function getAllRooms_test()
-    {
-        $userId = 1;
-        $rooms = ChatRoom::whereHas('aiMessages',  callback: function ($query) use ($userId) {
-            $query->where('sender_id', $userId);
-        })->get(['id', 'name', 'created_at', 'updated_at']);
-        $textMessage = AIMessage::where("chat_room_id", 2)->get();
-
-        return response()->json([$rooms, $textMessage]);
+    public function createChatRoom(Request $request){
+        $newRoom= ChatRoom::create([
+            "name" => Date::now()
+        ]);
+        return $this->generateText($request , $newRoom);
+        // generateText();
+        // return response()->json(["room"=>$newRoom]);
     }
     public function generateText(Request $request, ChatRoom $room)
     {
+
         $apiKey = env('AI_ML_API_KEY');
         if (!$apiKey) {
             return response()->json(['error' => 'API key is missing'], 500);
@@ -121,6 +122,7 @@ class AIMessageController extends Controller
             return response()->json([
                 "userMessage"=>$userMessage,
                 'reply' => $aiReply,
+                'room'=>$room,
 
             ]);
         } catch (RequestException $e) {
