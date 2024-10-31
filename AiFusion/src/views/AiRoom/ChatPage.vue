@@ -14,11 +14,11 @@ function adjustTextareaHeight() {
 const newMessage = ref("");
 function send() {
     if (newMessage.value.trim() !== "") {
-        aiStore.sendMessageinNewRoom(route.query.aiRoomId
+        aiStore.sendMessage(route.query.aiRoomId
         , newMessage);
         newMessage.value = "";
-        // const textarea = document.getElementById("messageTextarea");
-        // textarea.style.height = "2.5rem";
+        const textarea = document.getElementById("messageTextarea");
+        textarea.style.height = "2.5rem";
     }
 }
 const props = defineProps(['chatInRoom',"userAvatar","AI_initials","initials","rooms"])
