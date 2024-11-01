@@ -6,12 +6,14 @@ import { useRoute, useRouter } from "vue-router";
 import AsideBare from "./AiRoom/AsideBare.vue";
 import ChatPage from "./AiRoom/ChatPage.vue";
 import NewChatPage from "./AiRoom/NewChatPage.vue";
-
+import spinner from "@/components/layouts/spinner.vue";
 
 const router = useRouter(); // نحتاج استخدام useRouter للتنقل بين الغرف بدون تحديث الصفحة
 const route = useRoute();
 const authStore = useAuthStore();
 const aiStore = useAiStore();
+const isLoading = ref(false)
+
 const userAvatar = computed(() => {
     return authStore.user?.avatar ? authStore.user.avatar : "";
 });
@@ -22,27 +24,36 @@ const initials = computed(() => {
 });
 const AI_initials = "AI".toUpperCase();
 
-onMounted(() => {
+const loadRoomChats = async (roomId) => {
+  isLoading.value = true;
+  await aiStore.getChatsRoom(roomId);
+  isLoading.value = false;
+};
+
+onMounted(async () => {
+    isLoading.value=true
     aiStore.getAllRooms();
-    aiStore.getChatsRoom(route.query.aiRoomId); // جلب محادثات الغرفة الحالية بناءً على المعرف
+    if(route.name =='aiRoom'){
+        aiStore.getChatsRoom(route.query.aiRoomId); // جلب محادثات الغرفة الحالية بناءً على المعرف
+        await loadRoomChats(route.query.aiRoomId)
+    }
+    isLoading.value=false
+
 });
-watch(
-    () => route.query.aiRoomId,
+
+watch( () => route.query.aiRoomId,
     (newRoomId) => {
         if (newRoomId) {
             aiStore.getChatsRoom(newRoomId); // تحديث المحادثات عند تغير المعرف
+            loadRoomChats(newRoomId)
+
         }
     }
 );
-
-// دالة لتغيير الغرفة دون تحديث الصفحة
 const changeRoom = (roomId) => {
     router.push({ query: { aiRoomId: roomId } });
 };
-console.log(route.path);
-console.log(route.name);
-console.log( route.name =='aiRoom');
-console.log( route.name =='aiNewRoom');
+
 
 
 
@@ -57,15 +68,15 @@ console.log( route.name =='aiNewRoom');
             :rooms="aiStore.chatRooms"
             @change-room="changeRoom"
         ></aside-bare>
-
-        <chat-page v-if="route.name =='aiRoom'"
+        <chat-page v-if="route.name =='aiRoom' && !isLoading"
             :chatInRoom="aiStore.chatInRoom"
             :userAvatar = userAvatar
             :initials= initials
             :AI_initials= AI_initials
         ></chat-page>
+        <spinner v-if="isLoading"></spinner>
 
-        <new-chat-page v-if="route.name =='aiNewRoom'"
+        <new-chat-page v-if="route.name =='aiNewRoom' && !isLoading"
             :chatInRoom="aiStore.chatInRoom"
             :userAvatar = userAvatar
             :initials= initials

@@ -70,8 +70,6 @@ class AIMessageController extends Controller
             "name" => Date::now()
         ]);
         return $this->generateText($request , $newRoom);
-        // generateText();
-        // return response()->json(["room"=>$newRoom]);
     }
     public function generateText(Request $request, ChatRoom $room)
     {
@@ -93,7 +91,7 @@ class AIMessageController extends Controller
                     'Content-Type' => 'application/json',
                 ],
                 'json' => [
-                    "model" => "gpt-4o-mini",
+                    "model" => "gpt-4-turbo",
                     // "model" => "claude-3-haiku-20240307",
                     "messages" => [
                         [
