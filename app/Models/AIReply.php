@@ -10,19 +10,19 @@ class AIReply extends Model
     use HasFactory;
     protected $fillable = [
     "message_id",
-    "sender_id",
+    "ai_model_id",
     "reply_text",
     ];
 
-    public function user()
-{
-    return $this->belongsTo(User::class);
-}
+    public function message()
+    {
+        return $this->belongsTo(AIMessage::class);
+    }
 
-public function message()
-{
-    return $this->belongsTo(AIMessage::class);
-}
+    public function aiModel()
+    {
+        return $this->belongsTo(AIModel::class);
+    }
 
 
 }

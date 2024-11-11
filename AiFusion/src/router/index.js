@@ -30,25 +30,35 @@ const routes = [
         component: ResetPassword,
         name: "ResetPassword",
     },
-    // Ai app Room Route
+    // AI Room Route
     {
-        path: "/:aiRoomName",
+        path: "/:apiProviderName/:aiModelName/:aiRoomName",
         component: Home,
         name: "aiRoom",
         props: (route) => ({
+            apiProviderName: route.params.apiProviderName,
+            aiModelName: route.params.aiModelName,
             aiRoomName: route.params.aiRoomName,
-            aiRoomId: route.params.aiRoomId,
+            aiRoomId: route.query.aiRoomId,
         }),
+
         beforeEnter: (to, from, next) => {
-            to.params.aiRoomId = to.query.aiRoomId;
+            // Ensure aiRoomId exists in the query before entering the route
+            if (!to.query.aiRoomId) {
+                return next({ name: "home" });
+            }
             next();
         },
     },
+    // Route for creating a new chat room
     {
-        path: "/newChat",
+        path: "/:apiProviderName/:aiModelName/newChat",
         component: Home,
         name: "aiNewRoom",
-
+        props: (route) => ({
+            apiProviderName: route.params.apiProviderName,
+            aiModelName: route.params.aiModelName,
+        }),
     },
     // Errors route
     { path: "/:catchAll(.*)", component: NotFound, name: "NotFound" },

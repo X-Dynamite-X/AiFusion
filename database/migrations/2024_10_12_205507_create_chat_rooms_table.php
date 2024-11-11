@@ -13,7 +13,11 @@ return new class extends Migration
     {
         Schema::create('chat_rooms', function (Blueprint $table) {
             $table->id();
-            $table->string("name");
+            $table->string('name');
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('api_provider_id')->constrained('api_providers')->cascadeOnDelete();
+            $table->foreignId('ai_model_id')->constrained('ai_models')->cascadeOnDelete();
+
             $table->timestamps();
         });
     }
@@ -23,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('name');
+        Schema::dropIfExists('chat_rooms');
     }
 };

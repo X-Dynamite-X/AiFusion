@@ -18,11 +18,17 @@ class DatabaseSeeder extends Seeder
             'email' => 'dynamite@gmail.com',
             'password' => bcrypt(value: '123'),
         ]);
-        User::factory(count: 10)->create();
+        // User::factory(count: 10)->create();
 
             $this->call([
-                ChatRoomSeeder::class,
-                AIMesssageSeeder::class,
+                // ChatRoomSeeder::class,
+                // AIMesssageSeeder::class,
+                AiApiProviderSeeder::class,
+                AiModels\AimlapiModelSeeder::class,
+                AiModels\HuggingfaceModelSeeder::class
+
+
+
             ]);
     }
 }

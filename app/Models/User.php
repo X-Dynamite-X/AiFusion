@@ -48,16 +48,13 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    public function chatRooms()
+    {
+        return $this->hasMany(ChatRoom::class);
+    }
+
     public function messages()
     {
-        return $this->hasMany(related: AIMessage::class);
+        return $this->hasMany(AIMessage::class, 'sender_id');
     }
-    public function replies()
-    {
-        return $this->hasMany(AIReply::class);
-    }
-    public function chatRooms()
-{
-    return $this->hasMany(ChatRoom::class);
-}
 }

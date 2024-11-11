@@ -14,17 +14,17 @@ class AIMessage extends Model
     // علاقة الرسالة بغرفة الدردشة
     public function chatRoom()
     {
-        return $this->belongsTo( ChatRoom::class);
+        return $this->belongsTo(ChatRoom::class);
     }
 
-    // علاقة الرسالة بالمستخدم المرسل
-    public function aiSender()
+    public function sender()
     {
         return $this->belongsTo(User::class, 'sender_id');
     }
+
     public function replies()
     {
-        return $this->hasMany(AIReply::class,"message_id");
+        return $this->hasMany(AIReply::class, 'message_id');
     }
     // علاقة الرسالة بالردود
 

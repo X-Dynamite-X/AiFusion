@@ -18,13 +18,7 @@ class AIMesssageSeeder extends Seeder
      */
     public function run(): void
     {
-        //
 
-        /**
-         *     "message_id",
-    "sender_id",
-    "reply_text",
-         */
         $message = AIMessage::create([
             "chat_room_id" => 1,
             "sender_id" => 1,

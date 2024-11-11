@@ -5,6 +5,9 @@ import { useRoute, useRouter } from "vue-router";
 const router = useRouter(); // نحتاج استخدام useRouter للتنقل بين الغرف بدون تحديث الصفحة
 const route = useRoute();
 const aiStore = useAiStore();
+const apiProviderName = route.params.apiProviderName;
+const aiModelName = route.params.aiModelName;
+const aiRoomId = route.query.aiRoomId
 function adjustTextareaHeight() {
     const textarea = document.getElementById("messageTextarea");
     textarea.style.height = "2.5rem";
@@ -14,8 +17,13 @@ function adjustTextareaHeight() {
 const newMessage = ref("");
 function send() {
     if (newMessage.value.trim() !== "") {
-        aiStore.sendMessage(route.query.aiRoomId
-        , newMessage);
+        console.log(aiRoomId);
+        console.log(route.query.aiRoomId);
+        console.log(route.query);
+
+
+
+        aiStore.sendMessage(apiProviderName,aiModelName,aiRoomId, newMessage);
         newMessage.value = "";
         const textarea = document.getElementById("messageTextarea");
         textarea.style.height = "2.5rem";

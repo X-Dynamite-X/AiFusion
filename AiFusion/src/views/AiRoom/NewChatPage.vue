@@ -1,14 +1,20 @@
 <script setup>
 import { ref, onMounted, defineProps } from "vue";
-import { useAiStore } from "../../stores/aiChat";
+import { useRoute, useRouter } from "vue-router";
 
+import { useAiStore } from "../../stores/aiChat";
+const router = useRouter();
+const route = useRoute();
 const aiStore = useAiStore();
 const props = defineProps({
   chatInRoom: Array,
   userAvatar: String,
   AI_initials: String,
-  initials: String
+  initials: String,
 });
+const apiProviderName = route.params.apiProviderName;
+const aiModelName = route.params.aiModelName;
+
 
 const newMessage = ref("");
 const messageTextarea = ref(null);
@@ -20,7 +26,10 @@ const adjustTextareaHeight = () => {
 
 const sendAndCreateNewRoom = () => {
   if (newMessage.value.trim()) {
-    aiStore.sendMessageinNewRoom(newMessage);
+    console.log(apiProviderName);
+    console.log(aiModelName);
+
+    aiStore.sendMessageInNewRoom(apiProviderName,aiModelName,newMessage);
     newMessage.value = "";
   }
 };

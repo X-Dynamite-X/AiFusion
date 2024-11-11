@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('a_i_replies', function (Blueprint $table) {
+        Schema::create('ai_models', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('message_id')->constrained('a_i_messages')->cascadeOnDelete();
-            $table->foreignId('ai_model_id')->constrained('ai_models')->cascadeOnDelete();
-            $table->text('reply_text');
+            $table->string('name');
+            $table->foreignId('api_provider_id')->constrained('api_providers')->cascadeOnDelete();
+
             $table->timestamps();
         });
     }
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('a_i_replies');
+        Schema::dropIfExists('ai_models');
     }
 };

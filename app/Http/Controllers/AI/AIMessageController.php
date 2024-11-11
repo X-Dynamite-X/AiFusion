@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\AI;
 
-use App\Models\user;
+use App\Models\User;
+
 use GuzzleHttp\Client;
+use App\Models\AIModel;
 use App\Models\AIReply;
 use App\Models\ChatRoom;
 use App\Models\AIMessage;
+use App\Models\APIProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
@@ -55,26 +58,54 @@ class AIMessageController extends Controller
      * | 'o1-mini-2024-09-12' | 'gemini-1.5-flash' | 'gemini-1.5-pro' | 'gemini-pro' | 'anthropic/claude-3-opus' | 'anthropic/claude-3-sonnet' |
      * 'anthropic/claude-3-haiku' | 'anthropic/claude-3.5-sonnet'"
      */
-
-    public function getAllRooms()
+// AIProviderController.php
+public function getAllProvidersWithModels()
     {
-        $userId = Auth::user()->id;
-        $rooms = ChatRoom::whereHas('aiMessages',  callback: function ($query) use ($userId) {
-            $query->where('sender_id', $userId);
-        })->get(['id', 'name', 'created_at', 'updated_at']);
-
-        return response()->json($rooms);
+        $providers = APIProvider::with(
+            ['aiModels' => function ($query) {
+            $query->with('chatRooms'); // تحميل الغرف الخاصة بكل نموذج
+            }])->get();
+        return response()->json($providers);
     }
-    public function createChatRoom(Request $request){
-        $newRoom= ChatRoom::create([
-            "name" => Date::now()
+    public function createChatRoom($apiProviderName, Request $request)
+    {
+        $userId = Auth::id();
+        $aiModelName = $request->aiModelName;
+        // dd($request->aiModelName);
+        $userId = 1;
+
+
+        // البحث عن مزود الخدمة والنموذج بناءً على الأسماء
+        $apiProvider = APIProvider::where('name', $apiProviderName)->firstOrFail();
+        $aiModel = AIModel::where('name',"=", $aiModelName)->where('api_provider_id', $apiProvider->id)->firstOrFail();
+
+        // إنشاء غرفة دردشة جديدة مرتبطة بالمستخدم الحالي، مزود الخدمة، ونموذج الذكاء الاصطناعي
+        $newRoom = ChatRoom::create([
+            "name" => Date::now(),
+            "user_id" => $userId,
+            "api_provider_id" => $apiProvider->id,
+            "ai_model_id" => $aiModel->id,
         ]);
-        return $this->generateText($request , $newRoom);
-    }
-    public function generateText(Request $request, ChatRoom $room)
-    {
 
+        return $this->generateText($apiProviderName, $newRoom,$request);
+    }
+
+    public function generateText($apiProviderName, ChatRoom $room , Request $request)
+    {
+        if ($apiProviderName === "aimlapi") {
+            return $this->createChatRoom_aimlapi($request, $room);
+        } elseif ($apiProviderName === "huggingface") {
+            return $this->createChatRoom_huggingface($request, $room);
+        }
+    }
+
+    // إعداد غرفة دردشة جديدة لـ API "aimlapi"
+    public function createChatRoom_aimlapi(Request $request, ChatRoom $room)
+    {
         $apiKey = env('AI_ML_API_KEY');
+        $postUrlAi = "https://api.aimlapi.com/chat/completions";
+        $aiModel = "gpt-4-turbo";
+
         if (!$apiKey) {
             return response()->json(['error' => 'API key is missing'], 500);
         }
@@ -83,16 +114,16 @@ class AIMessageController extends Controller
         if (!$prompt) {
             return response()->json(['error' => 'Prompt is required'], 400);
         }
+
         try {
             $client = new Client();
-            $response = $client->post('https://api.aimlapi.com/chat/completions', [
+            $response = $client->post($postUrlAi, [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $apiKey,
                     'Content-Type' => 'application/json',
                 ],
                 'json' => [
-                    "model" => "gpt-4-turbo",
-                    // "model" => "claude-3-haiku-20240307",
+                    "model" => $aiModel,
                     "messages" => [
                         [
                             "role" => "user",
@@ -101,30 +132,30 @@ class AIMessageController extends Controller
                     ]
                 ]
             ]);
+
             $body = json_decode($response->getBody(), true);
-            $botReplyText = isset($body['choices'][0]['message']['content'])
-                ? $body['choices'][0]['message']['content']
-                : 'No content returned from API';
-            // return $body;
+            $botReplyText = $body['choices'][0]['message']['content'] ?? 'No content returned from API';
+
+            // إنشاء رسالة المستخدم وحفظ الرد
             $userMessage = AIMessage::create([
                 "chat_room_id" => $room->id,
+                // "sender_id" => Auth::id(),
                 "sender_id" => 1,
                 "message_text" => $prompt,
-
             ]);
+
             $aiReply = AIReply::create([
                 "message_id" => $userMessage->id,
-                "sender_id" => 1,
+                "ai_model_id" => $room->ai_model_id,
                 "reply_text" => $botReplyText,
             ]);
-            return response()->json([
-                "userMessage"=>$userMessage,
-                'reply' => $aiReply,
-                'room'=>$room,
 
+            return response()->json([
+                "userMessage" => $userMessage,
+                'reply' => $aiReply,
+                'room' => $room,
             ]);
         } catch (RequestException $e) {
-            // في حالة حدوث خطأ
             if ($e->hasResponse()) {
                 $responseBody = json_decode($e->getResponse()->getBody(), true);
                 return response()->json(['error' => $responseBody], $e->getResponse()->getStatusCode());
@@ -133,57 +164,75 @@ class AIMessageController extends Controller
             }
         }
     }
-    public function getTextChat(ChatRoom $room)
+
+    // إعداد غرفة دردشة جديدة لـ API "huggingface"
+    public function createChatRoom_huggingface(Request $request, ChatRoom $room)
     {
-        $textMessage = AIMessage::where("chat_room_id", $room->id)
-        ->with(["replies"])->get();
-        return response()->json($textMessage);
-    }
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $apiKey = env('HUGGINGFACE_API_KEY');
+        $aiModel = $request->aiModelName;
+        $postUrlAi = "https://api-inference.huggingface.co/models/".$aiModel;
+        // dd($postUrlAi);
+        if (!$apiKey) {
+            return response()->json(['error' => 'API key is missing'], 500);
+        }
+
+        $prompt = trim($request->input('prompt'));
+        if (!$prompt) {
+            return response()->json(['error' => 'Prompt is required'], 400);
+        }
+
+        try {
+            $client = new Client();
+            $response = $client->post($postUrlAi, [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $apiKey,
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => [
+                    "inputs"=>$prompt,
+                ]
+            ]);
+            $body = json_decode($response->getBody(), true);
+            // dd($body[0]->generated_text);
+            // dd($body[0]["generated_text"]);
+
+            $botReplyText = $body[0]['generated_text'] ?? 'No content returned from API';
+            $userMessage = AIMessage::create([
+                "chat_room_id" => $room->id,
+                // "sender_id" => Auth::id(),
+                "sender_id" => 1,
+
+                "message_text" => $prompt,
+            ]);
+
+            $aiReply = AIReply::create([
+                "message_id" => $userMessage->id,
+                "ai_model_id" => $room->ai_model_id,
+                "reply_text" => $botReplyText,
+            ]);
+
+            return response()->json([
+                "userMessage" => $userMessage,
+                'reply' => $aiReply,
+                'room' => $room,
+            ]);
+        } catch (RequestException $e) {
+            if ($e->hasResponse()) {
+                $responseBody = json_decode($e->getResponse()->getBody(), true);
+                return response()->json(['error' => $responseBody], $e->getResponse()->getStatusCode());
+            } else {
+                return response()->json(['error' => 'API request failed'], 500);
+            }
+        }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    // جلب جميع الرسائل الخاصة بغرفة دردشة معينة
+    public function getTextChat($apiProviderName, ChatRoom $room)
     {
-        //
-    }
+        $textMessages = AIMessage::where("chat_room_id", $room->id)
+            ->with("replies")
+            ->get();
 
-    /**
-     * Display the specified resource.
-     */
-    public function show()
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit()
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request,)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy()
-    {
-        //
+        return response()->json($textMessages);
     }
 }
