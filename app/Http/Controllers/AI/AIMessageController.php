@@ -193,15 +193,10 @@ public function getAllProvidersWithModels()
                 ]
             ]);
             $body = json_decode($response->getBody(), true);
-            // dd($body[0]->generated_text);
-            // dd($body[0]["generated_text"]);
-
             $botReplyText = $body[0]['generated_text'] ?? 'No content returned from API';
             $userMessage = AIMessage::create([
                 "chat_room_id" => $room->id,
-                // "sender_id" => Auth::id(),
                 "sender_id" => 1,
-
                 "message_text" => $prompt,
             ]);
 
